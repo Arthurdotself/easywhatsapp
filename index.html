@@ -93,7 +93,7 @@
         let currentIndex = 0;
         function downloadPDF() {
     const { jsPDF } = window.jspdf;
-    const doc = new jsPDF('landscape');
+    const doc = new jsPDF(); // Removed 'landscape' to default to portrait
     
     // Calculate optimal font size based on number of contacts
     const fontSize = Math.min(10, Math.max(6, Math.floor(180 / contacts.length)));
@@ -116,13 +116,13 @@
     // Define column headers
     doc.setFont(undefined, 'bold');
     doc.text('Phone Number', startX, y);
-    doc.text('Status', startX + 50, y);
-    doc.text('Notes', startX + 80, y);
+    doc.text('Status', startX + 40, y);
+    doc.text('Notes', startX + 65, y);
     y += lineHeight - 2;
 
     // Add a line under headers
-    doc.line(startX, y-3, 285, y-3);
-    
+    doc.line(startX, y-3, 200, y-3); // Adjusted line width for portrait
+
     // Loop through contacts
     contacts.forEach((contact, index) => {
         // Format phone number
@@ -137,24 +137,24 @@
 
         // Add label if exists
         if (contact.label) {
-            doc.text(contact.label.toUpperCase(), startX + 50, y);
+            doc.text(contact.label.toUpperCase(), startX + 40, y);
         }
 
         // Add note if exists
         if (contact.note) {
             // Limit note length and add ellipsis if too long
-            const maxNoteLength = Math.floor(120 / fontSize);
+            const maxNoteLength = Math.floor(80 / fontSize); // Adjusted for portrait width
             const truncatedNote = contact.note.length > maxNoteLength 
                 ? contact.note.substring(0, maxNoteLength) + '...' 
                 : contact.note;
-            doc.text(truncatedNote, startX + 80, y);
+            doc.text(truncatedNote, startX + 65, y);
         }
 
         y += lineHeight;
         
         // Add a light line between rows
         doc.setDrawColor(200);
-        doc.line(startX, y-lineHeight/2, 285, y-lineHeight/2);
+        doc.line(startX, y-lineHeight/2, 200, y-lineHeight/2); // Adjusted line width for portrait
     });
 
     // Save the PDF
