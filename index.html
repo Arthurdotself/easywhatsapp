@@ -1,28 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- Previous head section remains the same -->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WhatsApp Directory</title>
-    <meta name="description" content="WhatsApp Directory - Easy way to manage and contact WhatsApp numbers">
-    <meta property="og:title" content="WhatsApp Directory">
-    <meta property="og:description" content="Easy way to manage and contact WhatsApp numbers">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📱</text></svg>">
 </head>
 <body class="bg-gray-100 min-h-screen">
     <div class="max-w-md mx-auto p-4">
         <div class="bg-white rounded-lg shadow-lg p-6 mt-8">
-            <!-- Header remains the same -->
             <h1 class="text-2xl font-bold text-center text-green-600 mb-6 flex items-center justify-center gap-2">
-                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
-                </svg>
                 WhatsApp Directory
             </h1>
 
-            <!-- Bulk Import Section -->
             <div class="mb-6">
                 <textarea id="bulkNumbers" 
                     placeholder="Paste multiple numbers (one per line)"
@@ -53,11 +43,27 @@
                     Click "Open in WhatsApp" to chat or call this contact
                 </p>
             </div>
-            
+
+            <div class="mb-4">
+                <label for="statusLabel" class="block text-gray-700">Status:</label>
+                <select id="statusLabel" class="w-full p-2 border rounded focus:outline-none focus:border-green-500">
+                    <option value="">Select a status</option>
+                    <option value="on_hold">On Hold</option>
+                    <option value="no_answer">No Answer</option>
+                    <option value="confirmed">Confirmed</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
+            </div>
+
+            <div class="mb-4">
+                <label for="note" class="block text-gray-700">Note:</label>
+                <textarea id="note" placeholder="Add any additional notes here"
+                          class="w-full p-2 border rounded focus:outline-none focus:border-green-500"></textarea>
+            </div>
+
+            <button onclick="saveStatusAndNote()" class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 mb-4">Save Note</button>
+
             <button onclick="openWhatsApp()" class="w-full mb-3 bg-green-500 text-white py-4 rounded-lg hover:bg-green-600 transition-colors flex items-center justify-center gap-2">
-                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
-                </svg>
                 Open in WhatsApp
             </button>
             
@@ -71,14 +77,12 @@
         let numbers = [];
         let currentIndex = 0;
 
-        // Load numbers from localStorage
         function loadNumbers() {
             const savedNumbers = localStorage.getItem('whatsappNumbers');
             numbers = savedNumbers ? JSON.parse(savedNumbers) : [];
             updateDisplay();
         }
 
-        // Save numbers to localStorage
         function saveNumbers() {
             localStorage.setItem('whatsappNumbers', JSON.stringify(numbers));
         }
@@ -95,34 +99,28 @@
 
         function validatePhoneNumber(number) {
             const cleaned = number.replace(/[^\d+]/g, '');
-            if (!cleaned) return false;
-            if (cleaned.length < 10 || cleaned.length > 15) return false;
-            return true;
+            return cleaned && cleaned.length >= 10 && cleaned.length <= 15;
         }
 
         function importNumbers() {
             const textarea = document.getElementById('bulkNumbers');
             const input = textarea.value.trim();
-            
             if (!input) {
                 showStatus('Please paste some numbers first', true);
                 return;
             }
-
             const newNumbers = input.split(/[\n,]+/)
                 .map(num => num.trim())
-                .filter(num => num && validatePhoneNumber(num));
-
+                .filter(num => num && validatePhoneNumber(num))
+                .map(num => ({ number: num, status: '', note: '' }));
             if (newNumbers.length === 0) {
                 showStatus('No valid numbers found', true);
                 return;
             }
-
-            numbers = [...new Set([...numbers, ...newNumbers])]; // Remove duplicates
+            numbers = [...new Set([...numbers, ...newNumbers])];
             currentIndex = 0;
             saveNumbers();
             updateDisplay();
-            
             textarea.value = '';
             showStatus(`Successfully imported ${newNumbers.length} numbers`);
         }
@@ -147,16 +145,23 @@
         function updateDisplay() {
             const phoneNumberElement = document.getElementById('phoneNumber');
             const counterElement = document.getElementById('counter');
-            
+            const statusLabel = document.getElementById('statusLabel');
+            const noteElement = document.getElementById('note');
+
             if (numbers.length === 0) {
                 phoneNumberElement.textContent = 'No numbers added';
                 counterElement.textContent = '0 / 0';
+                statusLabel.value = '';
+                noteElement.value = '';
                 return;
             }
 
-            const formatted = formatNumber(numbers[currentIndex]);
+            const currentNumber = numbers[currentIndex];
+            const formatted = formatNumber(currentNumber.number);
             phoneNumberElement.textContent = '+' + formatted.replace(/(\d{3})(\d{3})(\d{4})/, '$1 $2 $3');
             counterElement.textContent = `${currentIndex + 1} / ${numbers.length}`;
+            statusLabel.value = currentNumber.status || '';
+            noteElement.value = currentNumber.note || '';
         }
 
         function nextNumber() {
@@ -173,13 +178,28 @@
 
         function openWhatsApp() {
             if (numbers.length === 0) return;
-            const formatted = formatNumber(numbers[currentIndex]);
+            const formatted = formatNumber(numbers[currentIndex].number);
             window.open(`https://wa.me/${formatted}`, '_blank');
+        }
+
+        function saveStatusAndNote() {
+            const status = document.getElementById('statusLabel').value;
+            const note = document.getElementById('note').value;
+            if (numbers.length === 0) return;
+
+            numbers[currentIndex] = {
+                ...numbers[currentIndex],
+                status: status,
+                note: note
+            };
+
+            saveNumbers();
+            showStatus("Status and note saved!");
         }
 
         async function copyNumber() {
             if (numbers.length === 0) return;
-            const formatted = formatNumber(numbers[currentIndex]);
+            const formatted = formatNumber(numbers[currentIndex].number);
             try {
                 await navigator.clipboard.writeText(formatted);
                 const btn = document.querySelector('button:last-child');
@@ -194,14 +214,12 @@
             }
         }
 
-        // Handle keyboard shortcuts
         document.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowRight') nextNumber();
             if (e.key === 'ArrowLeft') previousNumber();
             if (e.key === 'c' && (e.ctrlKey || e.metaKey)) copyNumber();
         });
 
-        // Initialize
         loadNumbers();
     </script>
 </body>
