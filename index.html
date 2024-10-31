@@ -4,12 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WhatsApp Directory</title>
-    <!-- Added meta tags for better SEO and sharing -->
     <meta name="description" content="WhatsApp Directory - Easy way to manage and contact WhatsApp numbers">
     <meta property="og:title" content="WhatsApp Directory">
     <meta property="og:description" content="Easy way to manage and contact WhatsApp numbers">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <!-- Added favicon -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📱</text></svg>">
 </head>
 <body class="bg-gray-100 min-h-screen">
@@ -21,6 +19,18 @@
                 </svg>
                 WhatsApp Directory
             </h1>
+
+            <!-- Number Input Form -->
+            <div class="mb-6">
+                <div class="flex gap-2">
+                    <input type="text" id="newNumber" placeholder="Enter phone number" 
+                        class="flex-1 p-2 border rounded focus:outline-none focus:border-green-500">
+                    <button onclick="addNumber()" class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">
+                        Add
+                    </button>
+                </div>
+                <p id="inputError" class="text-red-500 text-sm mt-1 hidden"></p>
+            </div>
             
             <div id="phoneNumber" class="text-3xl font-mono font-bold text-center mb-6 break-all"></div>
             
@@ -28,6 +38,18 @@
                 <button onclick="previousNumber()" class="px-4 py-2 border rounded hover:bg-gray-100 transition-colors">←</button>
                 <span id="counter" class="text-gray-600 min-w-[80px] text-center"></span>
                 <button onclick="nextNumber()" class="px-4 py-2 border rounded hover:bg-gray-100 transition-colors">→</button>
+            </div>
+
+            <!-- Manage Numbers Button -->
+            <button onclick="toggleManagePanel()" class="w-full mb-3 border text-gray-700 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+                Manage Numbers
+            </button>
+
+            <!-- Manage Numbers Panel -->
+            <div id="managePanel" class="hidden mb-6">
+                <div class="max-h-40 overflow-y-auto border rounded p-2">
+                    <div id="numbersList" class="space-y-2"></div>
+                </div>
             </div>
 
             <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
@@ -50,23 +72,69 @@
     </div>
 
     <script>
-        const numbers = [
-            "07809991075", "+9647709534095", "07503192802", "009647714823444", "07712250027",
-            "07726569574", "07706151144", "07830640139", "009647834417820", "7510807403",
-            "07822209074", "07702601617", "07704020929", "7510807403", "07700833335",
-            "07800002361", "07831602224", "07719024440", "07719024440", "07704024530",
-            "07804247230", "07807104000", "07726604664", "07701307756", "+9647814989008",
-            "07800459900", "07758788911", "+9647732261274", "07730344509", "07730446661",
-            "07700641341", "07810530061", "+918825833203", "07814666818", "07800002361",
-            "07716888611", "07826508848", "07812121491", "07801105594", "07735901773",
-            "07736378786", "07737414027", "07800002386", "07801020302", "07738140815",
-            "07826857278", "07707560556", "07706412569", "+9647839453469", "7869171280",
-            "07821776448", "5358616999", "07703334929", "009647808090307", "07702288933",
-            "7818789227", "07703121155", "009647728351272", "07510517856", "07703375020",
-            "07826503483", "07724596530"
-        ];
-        
+        let numbers = [];
         let currentIndex = 0;
+
+        // Load numbers from localStorage
+        function loadNumbers() {
+            const savedNumbers = localStorage.getItem('whatsappNumbers');
+            numbers = savedNumbers ? JSON.parse(savedNumbers) : [];
+            updateDisplay();
+            updateManagePanel();
+        }
+
+        // Save numbers to localStorage
+        function saveNumbers() {
+            localStorage.setItem('whatsappNumbers', JSON.stringify(numbers));
+            updateManagePanel();
+        }
+
+        function validatePhoneNumber(number) {
+            // Remove all non-digit characters for checking
+            const cleaned = number.replace(/[^\d+]/g, '');
+            
+            // Check if it's empty
+            if (!cleaned) {
+                return { valid: false, message: 'Please enter a phone number' };
+            }
+
+            // Check if it's too short or too long
+            if (cleaned.length < 10 || cleaned.length > 15) {
+                return { valid: false, message: 'Phone number should be between 10 and 15 digits' };
+            }
+
+            return { valid: true };
+        }
+
+        function addNumber() {
+            const input = document.getElementById('newNumber');
+            const number = input.value.trim();
+            const errorElement = document.getElementById('inputError');
+            
+            const validation = validatePhoneNumber(number);
+            
+            if (!validation.valid) {
+                errorElement.textContent = validation.message;
+                errorElement.classList.remove('hidden');
+                return;
+            }
+
+            errorElement.classList.add('hidden');
+            numbers.push(number);
+            input.value = '';
+            currentIndex = numbers.length - 1;
+            saveNumbers();
+            updateDisplay();
+        }
+
+        function removeNumber(index) {
+            numbers.splice(index, 1);
+            if (currentIndex >= numbers.length) {
+                currentIndex = Math.max(0, numbers.length - 1);
+            }
+            saveNumbers();
+            updateDisplay();
+        }
 
         function formatNumber(number) {
             let formatted = number.replace(/[^\d]/g, '');
@@ -77,29 +145,58 @@
         }
 
         function updateDisplay() {
+            const phoneNumberElement = document.getElementById('phoneNumber');
+            const counterElement = document.getElementById('counter');
+            
+            if (numbers.length === 0) {
+                phoneNumberElement.textContent = 'No numbers added';
+                counterElement.textContent = '0 / 0';
+                return;
+            }
+
             const formatted = formatNumber(numbers[currentIndex]);
-            document.getElementById('phoneNumber').textContent = 
-                '+' + formatted.replace(/(\d{3})(\d{3})(\d{4})/, '$1 $2 $3');
-            document.getElementById('counter').textContent = 
-                `${currentIndex + 1} / ${numbers.length}`;
+            phoneNumberElement.textContent = '+' + formatted.replace(/(\d{3})(\d{3})(\d{4})/, '$1 $2 $3');
+            counterElement.textContent = `${currentIndex + 1} / ${numbers.length}`;
+        }
+
+        function updateManagePanel() {
+            const numbersList = document.getElementById('numbersList');
+            numbersList.innerHTML = numbers.map((number, index) => `
+                <div class="flex justify-between items-center border-b pb-2">
+                    <span class="font-mono">${number}</span>
+                    <button onclick="removeNumber(${index})" 
+                        class="text-red-500 hover:text-red-700 px-2 py-1">
+                        ×
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function toggleManagePanel() {
+            const panel = document.getElementById('managePanel');
+            panel.classList.toggle('hidden');
         }
 
         function nextNumber() {
+            if (numbers.length === 0) return;
             currentIndex = (currentIndex + 1) % numbers.length;
             updateDisplay();
         }
 
         function previousNumber() {
+            if (numbers.length === 0) return;
             currentIndex = (currentIndex - 1 + numbers.length) % numbers.length;
             updateDisplay();
         }
 
         function openWhatsApp() {
+            if (numbers.length === 0) return;
             const formatted = formatNumber(numbers[currentIndex]);
             window.open(`https://wa.me/${formatted}`, '_blank');
         }
 
         async function copyNumber() {
+            if (numbers.length === 0) return;
             const formatted = formatNumber(numbers[currentIndex]);
             try {
                 await navigator.clipboard.writeText(formatted);
@@ -115,15 +212,21 @@
             }
         }
 
-        // Initialize display
-        updateDisplay();
-
-        // Add keyboard navigation
+        // Handle keyboard shortcuts
         document.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowRight') nextNumber();
             if (e.key === 'ArrowLeft') previousNumber();
             if (e.key === 'c' && (e.ctrlKey || e.metaKey)) copyNumber();
+            if (e.key === 'Enter' && document.activeElement.id === 'newNumber') {
+                addNumber();
+            }
         });
+
+        // Initialize
+        loadNumbers();
+
+        // Focus input on page load
+        document.getElementById('newNumber').focus();
     </script>
 </body>
 </html>
