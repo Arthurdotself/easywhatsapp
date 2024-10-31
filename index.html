@@ -91,60 +91,83 @@
     <script>
         let contacts = [];
         let currentIndex = 0;
-function downloadPDF() {
+        function downloadPDF() {
     const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
+    const doc = new jsPDF('landscape'); // Switch to landscape for more width
     
-    // Set initial y position
+    // Set initial positions
     let y = 20;
+    const startX = 10;
     
     // Add title
     doc.setFontSize(16);
-    doc.text('WhatsApp Directory - Contact List', 20, y);
+    doc.text('WhatsApp Directory - Contact List', startX, y);
     y += 10;
 
     // Add date
     doc.setFontSize(10);
-    doc.text('Generated on: ' + new Date().toLocaleString(), 20, y);
+    doc.text('Generated on: ' + new Date().toLocaleString(), startX, y);
     y += 15;
 
     // Set font size for content
-    doc.setFontSize(12);
+    doc.setFontSize(10);
 
+    // Define column headers
+    doc.setFont(undefined, 'bold');
+    doc.text('Phone Number', startX, y);
+    doc.text('Status', startX + 60, y);
+    doc.text('Notes', startX + 90, y);
+    y += 7;
+
+    // Add a line under headers
+    doc.line(startX, y-3, 285, y-3);
+    
     // Loop through contacts
     contacts.forEach((contact, index) => {
         // Check if we need a new page
-        if (y > 270) {
-            doc.addPage();
+        if (y > 200) { // Adjusted for landscape
+            doc.addPage('landscape');
             y = 20;
+            
+            // Add headers to new page
+            doc.setFont(undefined, 'bold');
+            doc.text('Phone Number', startX, y);
+            doc.text('Status', startX + 60, y);
+            doc.text('Notes', startX + 90, y);
+            y += 7;
+            doc.line(startX, y-3, 285, y-3);
         }
 
         // Format phone number
         const formattedNumber = formatNumber(contact.number);
         const displayNumber = '+' + formattedNumber.replace(/(\d{3})(\d{3})(\d{4})/, '$1 $2 $3');
 
+        // Reset font for content
+        doc.setFont(undefined, 'normal');
+
         // Add phone number
-        doc.setFont(undefined, 'bold');
-        doc.text(displayNumber, 20, y);
-        y += 7;
+        doc.text(displayNumber, startX, y);
 
         // Add label if exists
         if (contact.label) {
-            doc.setFont(undefined, 'normal');
-            doc.text('Status: ' + contact.label.toUpperCase(), 25, y);
-            y += 7;
+            doc.text(contact.label.toUpperCase(), startX + 60, y);
         }
 
         // Add note if exists
         if (contact.note) {
-            doc.setFont(undefined, 'normal');
-            const lines = doc.splitTextToSize('Note: ' + contact.note, 170);
-            doc.text(lines, 25, y);
-            y += (7 * lines.length);
+            // Split note into multiple lines if too long
+            const noteLines = doc.splitTextToSize(contact.note, 180); // Adjust width as needed
+            doc.text(noteLines, startX + 90, y);
+            
+            // Increase y by the height of multiple lines if necessary
+            y += Math.max(7, (noteLines.length - 1) * 7);
         }
 
-        // Add spacing between contacts
         y += 7;
+        
+        // Add a light line between rows
+        doc.setDrawColor(200);
+        doc.line(startX, y-3, 285, y-3);
     });
 
     // Save the PDF
